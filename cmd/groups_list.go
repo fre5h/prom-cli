@@ -21,7 +21,6 @@ var (
 			}
 			return nil
 		},
-		// Long:  `All software has versions. This is Hugo's`,
 		Run: func(cmd *cobra.Command, args []string) {
 			getListOfCompanyGroups(apiKey)
 		},
