@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/fre5h/promua-helper/internal/models"
+	"github.com/fre5h/prom-cli/internal/models"
 )
 
 func GetGroupList(apiKey string, limit int, lastId int) ([]models.Group, error) {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/fre5h/promua-helper/cmd"
+	"github.com/fre5h/prom-cli/cmd"
 )
 
 func main() {

@@ -1,4 +1,4 @@
-module github.com/fre5h/promua-helper
+module github.com/fre5h/prom-cli
 
 go 1.18
 

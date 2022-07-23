@@ -9,7 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/fre5h/promua-helper/internal/service"
+	"github.com/fre5h/prom-cli/internal/service"
 )
 
 var (
