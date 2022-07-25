@@ -18,3 +18,5 @@ coverage.txt
 
 bin/*
 !bin/.gitignore
+
+.env

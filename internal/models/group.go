@@ -15,5 +15,5 @@ type Groups struct {
 }
 
 func (g Group) String() string {
-	return fmt.Sprintf("ID: %d\tName: %s", g.Id, g.Name)
+	return fmt.Sprintf("ID: %d\tНазва: %s", g.Id, g.Name)
 }

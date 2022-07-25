@@ -1,4 +1,4 @@
-package service
+package api
 
 import (
 	"encoding/json"
@@ -15,17 +15,23 @@ import (
 	"github.com/fre5h/prom-cli/internal/models"
 )
 
-func GetGroupList(apiKey string, limit int, lastId int) ([]models.Group, error) {
+type Client struct {
+	apiKey string
+}
+
+func NewClient(apiKey string) *Client {
+	return &Client{apiKey: apiKey}
+}
+
+func (ac Client) GetGroupList(limit int, lastId int) ([]models.Group, error) {
 	var req *http.Request
 	var response *http.Response
 	var err error
 
 	if req, err = http.NewRequest(http.MethodGet, "https://my.prom.ua/api/v1/groups/list", nil); err != nil {
-		return nil, errors.New(fmt.Sprintf("client: could not create request: %s", err))
+		return nil, fmt.Errorf("client: could not create request: %s", err)
 	}
-
-	// Add authorization
-	req.Header.Set("Authorization", "Bearer "+apiKey)
+	req.Header.Set("Authorization", "Bearer "+ac.apiKey)
 
 	// Process query parameters
 	q := url.Values{}
@@ -42,7 +48,7 @@ func GetGroupList(apiKey string, limit int, lastId int) ([]models.Group, error) 
 	}
 
 	if response, err = client.Do(req); err != nil {
-		return nil, errors.New(fmt.Sprintf("client: error making http request: %s", err))
+		return nil, fmt.Errorf("client: error making http request: %s", err)
 	}
 
 	defer func(Body io.ReadCloser) {
@@ -56,22 +62,22 @@ func GetGroupList(apiKey string, limit int, lastId int) ([]models.Group, error) 
 	if response.StatusCode == http.StatusOK {
 		bodyBytes, errRead := ioutil.ReadAll(response.Body)
 		if errRead != nil {
-			return nil, errors.New(fmt.Sprintf("error in reading response body: %s", err))
+			return nil, fmt.Errorf("error in reading response body: %s", err)
 		}
 
 		data := models.Groups{}
 
 		if err = json.Unmarshal(bodyBytes, &data); err != nil {
-			return nil, errors.New(fmt.Sprintf("error on unmarshaling json: %s", err))
+			return nil, fmt.Errorf("error on unmarshaling json: %s", err)
 		}
 
 		return data.Groups, nil
 	}
 
-	return nil, errors.New(fmt.Sprintf("result code is not 200, it is %d", response.StatusCode))
+	return nil, fmt.Errorf("result code is not 200, it is %d", response.StatusCode)
 }
 
-func GetProductList(apiKey string, limit int, lastId int, groupId int) ([]models.Product, error) {
+func (ac Client) GetProductList(limit int, lastId int, groupId int) ([]models.Product, error) {
 	var req *http.Request
 	var response *http.Response
 	var err error
@@ -81,7 +87,7 @@ func GetProductList(apiKey string, limit int, lastId int, groupId int) ([]models
 	}
 
 	// Add authorization
-	req.Header.Set("Authorization", "Bearer "+apiKey)
+	req.Header.Set("Authorization", "Bearer "+ac.apiKey)
 
 	// Process query parameters
 	q := url.Values{}
