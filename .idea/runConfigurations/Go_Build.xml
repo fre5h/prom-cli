@@ -1,11 +1,11 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Go Build" type="GoApplicationRunConfiguration" factoryName="Go Application">
-    <module name="promua-helper" />
+    <module name="prom-cli" />
     <working_directory value="$PROJECT_DIR$" />
     <go_parameters value="-o ./bin/promua-cli" />
     <useCustomBuildTags value="true" />
     <kind value="PACKAGE" />
-    <package value="github.com/fre5h/promua-helper" />
+    <package value="github.com/fre5h/prom-cli" />
     <directory value="$PROJECT_DIR$" />
     <filePath value="$PROJECT_DIR$" />
     <option name="run" value="false" />

@@ -24,6 +24,30 @@ func NewClient(apiKey string) *Client {
 }
 
 func (ac Client) GetGroupList(limit int, lastId int) ([]models.Group, error) {
+	var groups []models.Group
+
+	for {
+		groupsChunk, err := ac.doGetGroupList(limit, lastId)
+		if err != nil {
+			return nil, err
+		}
+		if len(groupsChunk) == 0 {
+			break
+		}
+
+		groups = append(groups, groupsChunk...)
+
+		if len(groups) >= limit {
+			break
+		}
+
+		lastId = groupsChunk[len(groupsChunk)-1].Id
+	}
+
+	return groups, nil
+}
+
+func (ac Client) doGetGroupList(limit int, lastId int) ([]models.Group, error) {
 	var req *http.Request
 	var response *http.Response
 	var err error
@@ -78,6 +102,30 @@ func (ac Client) GetGroupList(limit int, lastId int) ([]models.Group, error) {
 }
 
 func (ac Client) GetProductList(limit int, lastId int, groupId int) ([]models.Product, error) {
+	var products []models.Product
+
+	for {
+		productsChunk, err := ac.doGetProductList(limit, lastId, groupId)
+		if err != nil {
+			return nil, err
+		}
+		if len(productsChunk) == 0 {
+			break
+		}
+
+		products = append(products, productsChunk...)
+
+		if len(products) >= limit {
+			break
+		}
+
+		lastId = productsChunk[len(productsChunk)-1].Id
+	}
+
+	return products, nil
+}
+
+func (ac Client) doGetProductList(limit int, lastId int, groupId int) ([]models.Product, error) {
 	var req *http.Request
 	var response *http.Response
 	var err error
@@ -98,7 +146,7 @@ func (ac Client) GetProductList(limit int, lastId int, groupId int) ([]models.Pr
 		q.Add("last_id", strconv.Itoa(lastId))
 	}
 	if groupId > 0 {
-		q.Add("group_id", strconv.Itoa(lastId))
+		q.Add("group_id", strconv.Itoa(groupId))
 	}
 	req.URL.RawQuery = q.Encode()
 

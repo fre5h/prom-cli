@@ -12,12 +12,14 @@ import (
 
 var (
 	// Flags
-	apiKey         string
-	limit          int
-	lastId         int
-	groupId        int
-	verbose        bool
-	outputFileName string
+	apiKey   string
+	limit    int
+	lastId   int
+	groupId  int
+	verbose  bool
+	fileName string
+
+	apiClient *api.Client
 
 	apiClient *api.Client
 

@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -20,26 +21,30 @@ var (
 
 func init() {
 	groupListCmd.Flags().StringVarP(&apiKey, "apiKey", "k", "", "секретний API ключ для доступу до кабінету Prom.ua")
-	groupListCmd.Flags().IntVarP(&limit, "limit", "l", 20, "максимальна кількість груп у відповіді")
+	groupListCmd.Flags().IntVarP(&limit, "limit", "l", math.MaxInt32, "максимальна кількість груп у відповіді")
 	groupListCmd.Flags().IntVarP(&lastId, "lastId", "i", 0, "обмежити вибірку груп з ідентифікаторами більшими за вказаний")
 	groupListCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "показати більше полів")
 
 	rootCmd.AddCommand(groupListCmd)
 }
 
-func getListOfCompanyGroups(cmd *cobra.Command, args []string) error {
+func getListOfCompanyGroups(_ *cobra.Command, _ []string) error {
+	cyan := color.New(color.FgCyan)
+	yellow := color.New(color.FgYellow)
+	green := color.New(color.FgGreen)
+
 	groups, err := apiClient.GetGroupList(limit, lastId)
 	if err != nil {
 		return err
 	}
 
+	fmt.Printf(green.Sprint("Відправка запиту до Prom.ua на отримання списку груп...\n"))
+	fmt.Printf(green.Sprint("Зачекайте, будь ласка...\n\n"))
+
 	var numberOfGroups = len(groups)
 	if 0 == numberOfGroups {
 		return fmt.Errorf("не знайдено жодної групи")
 	}
-
-	cyan := color.New(color.FgCyan)
-	yellow := color.New(color.FgYellow)
 
 	var i = 0
 
@@ -58,6 +63,8 @@ func getListOfCompanyGroups(cmd *cobra.Command, args []string) error {
 			fmt.Println()
 		}
 	}
+
+	fmt.Printf(green.Sprintf("\nКількість знайдених груп: %d\n", numberOfGroups))
 
 	return nil
 }

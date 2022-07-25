@@ -45,6 +45,18 @@ type Products struct {
 	GroupId  int       `json:"group_id"`
 }
 
+type ProductsArray []Product
+
+func (a ProductsArray) Len() int      { return len(a) }
+func (a ProductsArray) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ProductsArray) Less(i, j int) bool {
+	if a[i].Group.Name == a[j].Group.Name {
+		return a[i].Category.Caption < a[j].Category.Caption
+	}
+
+	return a[i].Group.Name < a[j].Group.Name
+}
+
 func (p Product) String() string {
 	return fmt.Sprintf("ID: %d\tНазва: %s", p.Id, p.Name)
 }
