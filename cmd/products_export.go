@@ -42,6 +42,12 @@ func exportListOfProducts(_ *cobra.Command, _ []string) error {
 		return fmt.Errorf("не вдалось створити файл %s", fileName)
 	}
 
+	green := color.New(color.FgGreen)
+	yellow := color.New(color.FgYellow)
+
+	fmt.Printf(green.Sprint("Відправка запиту до Prom.ua на отримання списку товарів\n"))
+	fmt.Printf(green.Sprint("Зачекайте, будь ласка...\n"))
+
 	products, err := apiClient.GetProductList(limit, lastId, groupId)
 	if err != nil {
 		return err
@@ -57,7 +63,22 @@ func exportListOfProducts(_ *cobra.Command, _ []string) error {
 	w := csv.NewWriter(file)
 	defer w.Flush()
 
-	w.Write([]string{"ID", "Назва", "Група", "Категорія", "Статус", "Код/Артикль", "Новий Код/Артикль", "Ціна", "Нова ціна", "Остання дата редагування"})
+	fmt.Printf(green.Sprintf("Кількість знайдених товарів: "))
+	fmt.Printf(yellow.Sprintf("%d\n\n", numberOfProducts))
+	fmt.Printf(green.Sprint("Експорт товарів в файл...\n"))
+
+	w.Write([]string{
+		"ID",
+		"Назва",
+		"Група",
+		"Категорія",
+		"Статус",
+		"Код/Артикль",
+		"Новий Код/Артикль",
+		"Ціна",
+		"Нова ціна",
+		"Остання дата редагування",
+	})
 
 	for _, product := range products {
 		w.Write([]string{
@@ -78,9 +99,10 @@ func exportListOfProducts(_ *cobra.Command, _ []string) error {
 		}
 	}
 
-	green := color.New(color.FgGreen)
-
-	fmt.Printf(green.Sprintf("\nКількість експортованих товарів у файл %s: %d\n", fileName, numberOfProducts))
+	fmt.Printf(green.Sprintf("Товари експортовано у файл "))
+	fmt.Printf(yellow.Sprintf("%s\n", fileName))
+	fmt.Printf(green.Sprintf("Кількість експортованих товарів у файл: "))
+	fmt.Printf(yellow.Sprintf("%d\n", numberOfProducts))
 
 	return nil
 }

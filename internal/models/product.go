@@ -51,6 +51,18 @@ func (a ProductsArray) Len() int      { return len(a) }
 func (a ProductsArray) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func (a ProductsArray) Less(i, j int) bool {
 	if a[i].Group.Name == a[j].Group.Name {
+		if a[i].Category.Caption == a[j].Category.Caption {
+			if a[i].Sku == a[j].Sku {
+				if a[i].Price == a[j].Price {
+					return a[i].Name < a[j].Name
+				}
+
+				return a[i].Price < a[j].Price
+			}
+
+			return a[i].Sku < a[j].Sku
+		}
+
 		return a[i].Category.Caption < a[j].Category.Caption
 	}
 

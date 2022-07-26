@@ -21,8 +21,6 @@ var (
 
 	apiClient *api.Client
 
-	apiClient *api.Client
-
 	usageTemplate = `Використання:{{if .Runnable}}
   {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
   {{.CommandPath}} [команда]{{end}}{{if gt (len .Aliases) 0}}

@@ -20,3 +20,4 @@ bin/*
 !bin/.gitignore
 
 .env
+data.csv
