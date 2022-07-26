@@ -11,8 +11,8 @@ import (
 var (
 	productListCmd = &cobra.Command{
 		Use:     "products:list",
-		Short:   "Список продуктів",
-		Long:    "Список продуктів з кабінету Prom.ua",
+		Short:   "Список товарів",
+		Long:    "Список товарів з кабінету Prom.ua",
 		Args:    validateArgs,
 		RunE:    getListOfProducts,
 		PreRunE: preRunE,

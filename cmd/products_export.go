@@ -17,8 +17,8 @@ import (
 var (
 	productExportCmd = &cobra.Command{
 		Use:     "products:export",
-		Short:   "Експорт списку продуктів в CSV файл",
-		Long:    "Експорт списку продуктів з кабінету Prom.ua в CSV файл",
+		Short:   "Експорт списку товарів в CSV файл",
+		Long:    "Експорт списку товарів з кабінету Prom.ua в CSV файл",
 		Args:    validateArgs,
 		RunE:    exportListOfProducts,
 		PreRunE: preRunE,
