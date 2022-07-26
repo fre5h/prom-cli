@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="products:export" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="prom-cli" />
+    <working_directory value="$PROJECT_DIR$" />
+    <parameters value="products:export" />
+    <kind value="PACKAGE" />
+    <package value="github.com/fre5h/prom-cli" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$" />
+    <method v="2" />
+  </configuration>
+</component>
