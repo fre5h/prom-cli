@@ -29,9 +29,7 @@ func NewClient(apiKey string) *Client {
 	}
 }
 
-func (ac Client) GetGroupList(limit int, lastId int) ([]models.Group, error) {
-	var groups []models.Group
-
+func (ac Client) GetGroupList(limit int, lastId int) (groups []models.Group, err error) {
 	for {
 		groupsChunk, err := ac.doGetGroupList(limit, lastId)
 		if err != nil {
@@ -94,9 +92,7 @@ func (ac Client) doGetGroupList(limit int, lastId int) ([]models.Group, error) {
 	return nil, fmt.Errorf("result code is not 200, it is %d", response.StatusCode)
 }
 
-func (ac Client) GetProductList(limit int, lastId int, groupId int) ([]models.Product, error) {
-	var products []models.Product
-
+func (ac Client) GetProductList(limit int, lastId int, groupId int) (products []models.Product, err error) {
 	for {
 		productsChunk, err := ac.doGetProductList(limit, lastId, groupId)
 		if err != nil {
@@ -162,9 +158,8 @@ func (ac Client) doGetProductList(limit int, lastId int, groupId int) ([]models.
 	return nil, fmt.Errorf("result code is not 200, it is %d", response.StatusCode)
 }
 
-func (ac Client) UpdateProduct(products []models.ProductUpdate) error {
+func (ac Client) UpdateProduct(products []models.ProductUpdate) (err error) {
 	var response *http.Response
-	var err error
 
 	jsonStr, _ := json.Marshal(products)
 
@@ -182,6 +177,8 @@ func (ac Client) UpdateProduct(products []models.ProductUpdate) error {
 		return fmt.Errorf("result code is not 200, it is %d", response.StatusCode)
 	}
 
+	// @todo Process response
+
 	return nil
 }
 
@@ -193,7 +190,6 @@ func createRequest(method string, url string, apiKey string, body io.Reader) *ht
 		os.Exit(1)
 	}
 
-	// Add authorization
 	req.Header.Set("Authorization", "Bearer "+apiKey)
 
 	return req
