@@ -59,16 +59,14 @@ Additional help topics:{{range .Commands}}{{if .IsAdditionalHelpTopicCommand}}
 )
 
 func init() {
-	rootCmd.Flags().BoolP("help", "h", false, "довідка про будь-яку команду")
+	rootCmd.Flags().BoolP("help", "h", false, "Довідка про будь-яку команду")
+	rootCmd.Flags().BoolP("version", "v", false, "Версія консольної програми prom-cli")
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
-
-	// for _, c := range append(rootCmd.Commands(), rootCmd) {
-	// 	c.Flags().BoolP("help", "h", false, "Help for "+c.Name())
-	// }
-	//
-	// for _, c := range rootCmd.Commands() {
-	// 	c.Flags().BoolP("help", "h", false, "Help for "+c.Name())
-	// }
+	rootCmd.SetUsageTemplate(usageTemplate)
+	rootCmd.SetHelpCommand(&cobra.Command{
+		Use:    "no-help",
+		Hidden: true,
+	})
 }
 
 func Execute() error {

@@ -15,8 +15,7 @@ import (
 var (
 	productUpdateCmd = &cobra.Command{
 		Use:     "products:update",
-		Short:   "Внесення змін в товари взятих з CSV файла",
-		Long:    "Внесення змін в товари взятих з CSV файла, що відправляться в кабінеті Prom.ua",
+		Short:   "Зміни ціни товарів (з CSV файла)",
 		Args:    validateArgs,
 		RunE:    updateListOfProducts,
 		PreRunE: preRunE,

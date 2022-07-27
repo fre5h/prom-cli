@@ -12,7 +12,6 @@ var (
 	groupListCmd = &cobra.Command{
 		Use:     "groups:list",
 		Short:   "Список груп",
-		Long:    "Список груп з кабінету Prom.ua",
 		Args:    validateArgs,
 		RunE:    getListOfCompanyGroups,
 		PreRunE: preRunE,
