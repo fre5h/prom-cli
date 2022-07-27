@@ -1,8 +1,8 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -16,11 +16,17 @@ import (
 )
 
 type Client struct {
-	apiKey string
+	apiKey     string
+	httpClient http.Client
 }
 
 func NewClient(apiKey string) *Client {
-	return &Client{apiKey: apiKey}
+	return &Client{
+		apiKey: apiKey,
+		httpClient: http.Client{
+			Timeout: 30 * time.Second,
+		},
+	}
 }
 
 func (ac Client) GetGroupList(limit int, lastId int) ([]models.Group, error) {
@@ -41,21 +47,17 @@ func (ac Client) GetGroupList(limit int, lastId int) ([]models.Group, error) {
 			break
 		}
 
-		lastId = groupsChunk[len(groupsChunk)-1].Id
+		lastId = groupsChunk[len(groupsChunk)-1].ID
 	}
 
 	return groups, nil
 }
 
 func (ac Client) doGetGroupList(limit int, lastId int) ([]models.Group, error) {
-	var req *http.Request
 	var response *http.Response
 	var err error
 
-	if req, err = http.NewRequest(http.MethodGet, "https://my.prom.ua/api/v1/groups/list", nil); err != nil {
-		return nil, fmt.Errorf("client: could not create request: %s", err)
-	}
-	req.Header.Set("Authorization", "Bearer "+ac.apiKey)
+	req := createRequest(http.MethodGet, "https://my.prom.ua/api/v1/groups/list", ac.apiKey, nil)
 
 	// Process query parameters
 	q := url.Values{}
@@ -67,21 +69,12 @@ func (ac Client) doGetGroupList(limit int, lastId int) ([]models.Group, error) {
 	}
 	req.URL.RawQuery = q.Encode()
 
-	client := http.Client{
-		Timeout: 30 * time.Second,
-	}
+	response, err = ac.httpClient.Do(req)
+	defer closeBody(response.Body)
 
-	if response, err = client.Do(req); err != nil {
-		return nil, fmt.Errorf("client: error making http request: %s", err)
+	if err != nil {
+		return nil, fmt.Errorf("http client: помилка на створенні запиту: %s", err)
 	}
-
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			fmt.Printf("error on closing body: %s", err)
-			os.Exit(1)
-		}
-	}(response.Body)
 
 	if response.StatusCode == http.StatusOK {
 		bodyBytes, errRead := ioutil.ReadAll(response.Body)
@@ -119,23 +112,17 @@ func (ac Client) GetProductList(limit int, lastId int, groupId int) ([]models.Pr
 			break
 		}
 
-		lastId = productsChunk[len(productsChunk)-1].Id
+		lastId = productsChunk[len(productsChunk)-1].ID
 	}
 
 	return products, nil
 }
 
 func (ac Client) doGetProductList(limit int, lastId int, groupId int) ([]models.Product, error) {
-	var req *http.Request
 	var response *http.Response
 	var err error
 
-	if req, err = http.NewRequest(http.MethodGet, "https://my.prom.ua/api/v1/products/list", nil); err != nil {
-		return nil, errors.New(fmt.Sprintf("client: could not create request: %s", err))
-	}
-
-	// Add authorization
-	req.Header.Set("Authorization", "Bearer "+ac.apiKey)
+	req := createRequest(http.MethodGet, "https://my.prom.ua/api/v1/products/list", ac.apiKey, nil)
 
 	// Process query parameters
 	q := url.Values{}
@@ -150,36 +137,73 @@ func (ac Client) doGetProductList(limit int, lastId int, groupId int) ([]models.
 	}
 	req.URL.RawQuery = q.Encode()
 
-	client := http.Client{
-		Timeout: 30 * time.Second,
-	}
+	response, err = ac.httpClient.Do(req)
+	defer closeBody(response.Body)
 
-	if response, err = client.Do(req); err != nil {
-		return nil, errors.New(fmt.Sprintf("client: error making http request: %s", err))
+	if err != nil {
+		return nil, fmt.Errorf("http client: помилка на створенні запиту: %s", err)
 	}
-
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			fmt.Printf("error on closing body: %s", err)
-			os.Exit(1)
-		}
-	}(response.Body)
 
 	if response.StatusCode == http.StatusOK {
 		bodyBytes, errRead := ioutil.ReadAll(response.Body)
 		if errRead != nil {
-			return nil, errors.New(fmt.Sprintf("error in reading response body: %s", err))
+			return nil, fmt.Errorf("error in reading response body: %s", err)
 		}
 
 		data := models.Products{}
 
 		if err = json.Unmarshal(bodyBytes, &data); err != nil {
-			return nil, errors.New(fmt.Sprintf("error on unmarshaling json: %s", err))
+			return nil, fmt.Errorf("error on unmarshaling json: %s", err)
 		}
 
 		return data.Products, nil
 	}
 
-	return nil, errors.New(fmt.Sprintf("result code is not 200, it is %d", response.StatusCode))
+	return nil, fmt.Errorf("result code is not 200, it is %d", response.StatusCode)
+}
+
+func (ac Client) UpdateProduct(products []models.ProductUpdate) error {
+	var response *http.Response
+	var err error
+
+	jsonStr, _ := json.Marshal(products)
+
+	body := bytes.NewBuffer(jsonStr)
+
+	req := createRequest(http.MethodPost, "https://my.prom.ua/api/v1/products/update", ac.apiKey, body)
+
+	if response, err = ac.httpClient.Do(req); err != nil {
+		return fmt.Errorf("client: error making http request: %s", err)
+	}
+
+	defer closeBody(response.Body)
+
+	if response.StatusCode != http.StatusOK {
+		return fmt.Errorf("result code is not 200, it is %d", response.StatusCode)
+	}
+
+	return nil
+}
+
+func createRequest(method string, url string, apiKey string, body io.Reader) *http.Request {
+	req, err := http.NewRequest(method, url, body)
+
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	// Add authorization
+	req.Header.Set("Authorization", "Bearer "+apiKey)
+
+	return req
+}
+
+func closeBody(body io.ReadCloser) {
+	err := body.Close()
+
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }

@@ -6,23 +6,23 @@ import (
 )
 
 type group struct {
-	Id   int    `json:"id"`
+	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
 
 type category struct {
-	Id      int    `json:"id"`
+	ID      int    `json:"id"`
 	Caption string `json:"caption"`
 }
 
 type image struct {
-	Id           int64  `json:"id"`
+	ID           int64  `json:"id"`
 	ThumbnailUrl string `json:"thumbnail_url"`
 	Url          string `json:"url"`
 }
 
 type Product struct {
-	Id           int       `json:"id"`
+	ID           int       `json:"id"`
 	ExternalId   string    `json:"external_id"`
 	Name         string    `json:"name"`
 	Sku          string    `json:"sku"`
@@ -70,7 +70,7 @@ func (a ProductsArray) Less(i, j int) bool {
 }
 
 func (p Product) String() string {
-	return fmt.Sprintf("ID: %d\tНазва: %s", p.Id, p.Name)
+	return fmt.Sprintf("ID: %d\tНазва: %s", p.ID, p.Name)
 }
 
 func (p Product) GetTranslatedStatus() string {

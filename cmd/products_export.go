@@ -74,7 +74,6 @@ func exportListOfProducts(_ *cobra.Command, _ []string) error {
 		"Категорія",
 		"Статус",
 		"Код/Артикль",
-		"Новий Код/Артикль",
 		"Ціна",
 		"Нова ціна",
 		"Остання дата редагування",
@@ -82,13 +81,12 @@ func exportListOfProducts(_ *cobra.Command, _ []string) error {
 
 	for _, product := range products {
 		w.Write([]string{
-			strconv.Itoa(product.Id),
+			strconv.Itoa(product.ID),
 			product.Name,
 			product.Group.Name,
 			product.Category.Caption,
 			product.GetTranslatedStatus(),
 			product.Sku,
-			"",
 			fmt.Sprintf("%.2f", product.Price),
 			"",
 			product.DateModified.Format("02.01.2006 15:04:05"),
@@ -101,6 +99,7 @@ func exportListOfProducts(_ *cobra.Command, _ []string) error {
 
 	fmt.Printf(green.Sprintf("Товари експортовано у файл "))
 	fmt.Printf(yellow.Sprintf("%s\n", fileName))
+
 	fmt.Printf(green.Sprintf("Кількість експортованих товарів у файл: "))
 	fmt.Printf(yellow.Sprintf("%d\n", numberOfProducts))
 

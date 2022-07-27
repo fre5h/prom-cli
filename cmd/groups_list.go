@@ -50,7 +50,7 @@ func getListOfCompanyGroups(_ *cobra.Command, _ []string) error {
 
 	for _, group := range groups {
 		i++
-		fmt.Println(cyan.Sprint("ID:"), yellow.Sprint(group.Id))
+		fmt.Println(cyan.Sprint("ID:"), yellow.Sprint(group.ID))
 		fmt.Println(cyan.Sprint("Назва:"), group.Name)
 		fmt.Println(cyan.Sprint("Батьківська група:"), group.ParentGroupId)
 

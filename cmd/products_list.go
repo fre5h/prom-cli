@@ -52,10 +52,10 @@ func getListOfProducts(_ *cobra.Command, _ []string) error {
 
 	for _, product := range products {
 		i++
-		fmt.Println(cyan.Sprint("ID:"), yellow.Sprint(product.Id))
+		fmt.Println(cyan.Sprint("ID:"), yellow.Sprint(product.ID))
 		fmt.Println(cyan.Sprint("Назва:"), product.Name)
-		fmt.Println(cyan.Sprint("Група:"), product.Group.Name, blue.Sprintf("(ID: %d)", product.Group.Id))
-		fmt.Println(cyan.Sprint("Категорія:"), product.Category.Caption, blue.Sprintf("(ID: %d)", product.Category.Id))
+		fmt.Println(cyan.Sprint("Група:"), product.Group.Name, blue.Sprintf("(ID: %d)", product.Group.ID))
+		fmt.Println(cyan.Sprint("Категорія:"), product.Category.Caption, blue.Sprintf("(ID: %d)", product.Category.ID))
 		fmt.Println(cyan.Sprint("Код/Артикул:"), product.Sku)
 		fmt.Println(cyan.Sprint("Ціна:"), fmt.Sprintf("%.2f", product.Price), product.Currency)
 

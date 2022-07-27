@@ -3,11 +3,10 @@ package models
 import "fmt"
 
 type ProductUpdate struct {
-	Id    string `json:"id"`
-	Sku   string `json:"sku"`
-	Price string `json:"price"`
+	ID    int     `json:"id"`
+	Price float64 `json:"price"`
 }
 
 func (p ProductUpdate) String() string {
-	return fmt.Sprintf("ID: %s\tКод/Артикул: %s\tЦіна: %s\n", p.Id, p.Sku, p.Price)
+	return fmt.Sprintf("ID: %d\tЦіна: %.2f", p.ID, p.Price)
 }

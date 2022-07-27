@@ -3,7 +3,7 @@ package models
 import "fmt"
 
 type Group struct {
-	Id            int    `json:"id"`
+	ID            int    `json:"id"`
 	Name          string `json:"name"`
 	Description   string `json:"description"`
 	Image         string `json:"image"`
@@ -15,5 +15,5 @@ type Groups struct {
 }
 
 func (g Group) String() string {
-	return fmt.Sprintf("ID: %d\tНазва: %s", g.Id, g.Name)
+	return fmt.Sprintf("ID: %d\tНазва: %s", g.ID, g.Name)
 }
