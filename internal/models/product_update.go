@@ -10,3 +10,8 @@ type ProductUpdate struct {
 func (p ProductUpdate) String() string {
 	return fmt.Sprintf("ID: %d\tЦіна: %.2f", p.ID, p.Price)
 }
+
+type ProductUpdateResponse struct {
+	ProcessedIds []int    `json:"processed_ids"`
+	Errors       []string `json:"errors"`
+}

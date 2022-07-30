@@ -12,6 +12,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/fatih/color"
+
 	"github.com/fre5h/prom-cli/internal/models"
 )
 
@@ -29,9 +31,10 @@ func NewClient(apiKey string) *Client {
 	}
 }
 
-func (ac Client) GetGroupList(limit int, lastId int) (groups []models.Group, err error) {
+// GetGroupList gets groups with limit and last ID
+func (c Client) GetGroupList(limit int, lastId int) (groups []models.Group, err error) {
 	for {
-		groupsChunk, err := ac.doGetGroupList(limit, lastId)
+		groupsChunk, err := c.doGetGroupList(limit, lastId)
 		if err != nil {
 			return nil, err
 		}
@@ -51,11 +54,11 @@ func (ac Client) GetGroupList(limit int, lastId int) (groups []models.Group, err
 	return groups, nil
 }
 
-func (ac Client) doGetGroupList(limit int, lastId int) ([]models.Group, error) {
+func (c Client) doGetGroupList(limit int, lastId int) ([]models.Group, error) {
 	var response *http.Response
 	var err error
 
-	req := createRequest(http.MethodGet, "https://my.prom.ua/api/v1/groups/list", ac.apiKey, nil)
+	req := createRequest(http.MethodGet, "https://my.prom.ua/api/v1/groups/list", c.apiKey, nil)
 
 	// Process query parameters
 	q := url.Values{}
@@ -67,34 +70,34 @@ func (ac Client) doGetGroupList(limit int, lastId int) ([]models.Group, error) {
 	}
 	req.URL.RawQuery = q.Encode()
 
-	response, err = ac.httpClient.Do(req)
+	response, err = c.httpClient.Do(req)
 	defer closeBody(response.Body)
 
 	if err != nil {
-		return nil, fmt.Errorf("http client: помилка на створенні запиту: %s", err)
+		return nil, fmt.Errorf("http client: помилка при відправці запиту: %s", err)
 	}
 
 	if response.StatusCode == http.StatusOK {
 		bodyBytes, errRead := ioutil.ReadAll(response.Body)
 		if errRead != nil {
-			return nil, fmt.Errorf("error in reading response body: %s", err)
+			return nil, fmt.Errorf("помилка на читанні відповіді: %s", err)
 		}
 
 		data := models.Groups{}
-
 		if err = json.Unmarshal(bodyBytes, &data); err != nil {
-			return nil, fmt.Errorf("error on unmarshaling json: %s", err)
+			return nil, fmt.Errorf("помилка на декодуванні json: %s", err)
 		}
 
 		return data.Groups, nil
 	}
 
-	return nil, fmt.Errorf("result code is not 200, it is %d", response.StatusCode)
+	return nil, formatStatusCodeError(response.StatusCode)
 }
 
-func (ac Client) GetProductList(limit int, lastId int, groupId int) (products []models.Product, err error) {
+// GetProductList gets products with limit, last ID and group ID
+func (c Client) GetProductList(limit int, lastId int, groupId int) (products []models.Product, err error) {
 	for {
-		productsChunk, err := ac.doGetProductList(limit, lastId, groupId)
+		productsChunk, err := c.doGetProductList(limit, lastId, groupId)
 		if err != nil {
 			return nil, err
 		}
@@ -114,11 +117,11 @@ func (ac Client) GetProductList(limit int, lastId int, groupId int) (products []
 	return products, nil
 }
 
-func (ac Client) doGetProductList(limit int, lastId int, groupId int) ([]models.Product, error) {
+func (c Client) doGetProductList(limit int, lastId int, groupId int) ([]models.Product, error) {
 	var response *http.Response
 	var err error
 
-	req := createRequest(http.MethodGet, "https://my.prom.ua/api/v1/products/list", ac.apiKey, nil)
+	req := createRequest(http.MethodGet, "https://my.prom.ua/api/v1/products/list", c.apiKey, nil)
 
 	// Process query parameters
 	q := url.Values{}
@@ -133,53 +136,60 @@ func (ac Client) doGetProductList(limit int, lastId int, groupId int) ([]models.
 	}
 	req.URL.RawQuery = q.Encode()
 
-	response, err = ac.httpClient.Do(req)
+	response, err = c.httpClient.Do(req)
 	defer closeBody(response.Body)
 
 	if err != nil {
-		return nil, fmt.Errorf("http client: помилка на створенні запиту: %s", err)
+		return nil, fmt.Errorf("http client: помилка при відправці запиту: %s", err)
 	}
 
 	if response.StatusCode == http.StatusOK {
 		bodyBytes, errRead := ioutil.ReadAll(response.Body)
 		if errRead != nil {
-			return nil, fmt.Errorf("error in reading response body: %s", err)
+			return nil, fmt.Errorf("помилка на читанні відповіді: %s", err)
 		}
 
 		data := models.Products{}
-
 		if err = json.Unmarshal(bodyBytes, &data); err != nil {
-			return nil, fmt.Errorf("error on unmarshaling json: %s", err)
+			return nil, fmt.Errorf("помилка на декодуванні json: %s", err)
 		}
 
 		return data.Products, nil
 	}
 
-	return nil, fmt.Errorf("result code is not 200, it is %d", response.StatusCode)
+	return nil, formatStatusCodeError(response.StatusCode)
 }
 
-func (ac Client) UpdateProduct(products []models.ProductUpdate) (err error) {
+// UpdateProduct updates products
+func (c Client) UpdateProduct(products []models.ProductUpdate) (*models.ProductUpdateResponse, error) {
 	var response *http.Response
+	var err error
 
 	jsonStr, _ := json.Marshal(products)
+	req := createRequest(http.MethodPost, "https://my.prom.ua/api/v1/products/update", c.apiKey, bytes.NewBuffer(jsonStr))
 
-	body := bytes.NewBuffer(jsonStr)
-
-	req := createRequest(http.MethodPost, "https://my.prom.ua/api/v1/products/update", ac.apiKey, body)
-
-	if response, err = ac.httpClient.Do(req); err != nil {
-		return fmt.Errorf("client: error making http request: %s", err)
-	}
-
+	response, err = c.httpClient.Do(req)
 	defer closeBody(response.Body)
 
-	if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("result code is not 200, it is %d", response.StatusCode)
+	if err != nil {
+		return nil, fmt.Errorf("http client: помилка при відправці запиту: %s", err)
 	}
 
-	// @todo Process response
+	if response.StatusCode == http.StatusOK {
+		bodyBytes, errRead := ioutil.ReadAll(response.Body)
+		if errRead != nil {
+			return nil, fmt.Errorf("помилка на читанні відповіді: %s", err)
+		}
 
-	return nil
+		data := models.ProductUpdateResponse{}
+		if err = json.Unmarshal(bodyBytes, &data); err != nil {
+			return nil, fmt.Errorf("помилка на декодуванні json: %s", err)
+		}
+
+		return &data, nil
+	}
+
+	return nil, formatStatusCodeError(response.StatusCode)
 }
 
 func createRequest(method string, url string, apiKey string, body io.Reader) *http.Request {
@@ -202,4 +212,8 @@ func closeBody(body io.ReadCloser) {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+}
+
+func formatStatusCodeError(statusCode int) error {
+	return fmt.Errorf("неуспішний запит, отриманий статус код %s", color.New(color.FgRed).Sprintf("%d", statusCode))
 }

@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
 	"github.com/fre5h/prom-cli/internal/models"
@@ -79,7 +80,35 @@ func updateListOfProducts(_ *cobra.Command, _ []string) error {
 			}
 		}
 
-		return apiClient.UpdateProduct(productsToUpdate)
+		green := color.New(color.FgGreen)
+		red := color.New(color.FgRed)
+
+		productsUpdateResult, err := apiClient.UpdateProduct(productsToUpdate)
+		if err != nil {
+			return fmt.Errorf("помилка на оновленні товарів: %s", err)
+		}
+
+		numberOfProcessedProducts := len(productsUpdateResult.ProcessedIds)
+		if numberOfProcessedProducts > 0 {
+			fmt.Println(green.Sprint("Успішно оновлені товари:"))
+
+			for _, id := range productsUpdateResult.ProcessedIds {
+				fmt.Println(green.Sprintf(" %s", id))
+			}
+
+			fmt.Printf(green.Sprintf("\nКількість успішно оновлених товарів: %d\n", numberOfProcessedProducts))
+		}
+
+		numberOfErrors := len(productsUpdateResult.Errors)
+		if numberOfErrors > 0 {
+			fmt.Println(red.Sprint("Помилки:"))
+
+			for _, errorMessage := range productsUpdateResult.Errors {
+				fmt.Println(red.Sprintf(" %s", errorMessage))
+			}
+
+			fmt.Printf(red.Sprintf("\nКількість помилок: %d\n", numberOfErrors))
+		}
 	}
 
 	return nil

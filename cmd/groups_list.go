@@ -45,10 +45,7 @@ func getListOfCompanyGroups(_ *cobra.Command, _ []string) error {
 		return fmt.Errorf("не знайдено жодної групи")
 	}
 
-	var i = 0
-
-	for _, group := range groups {
-		i++
+	for i, group := range groups {
 		fmt.Println(cyan.Sprint("ID:"), yellow.Sprint(group.ID))
 		fmt.Println(cyan.Sprint("Назва:"), group.Name)
 		fmt.Println(cyan.Sprint("Батьківська група:"), group.ParentGroupId)
@@ -58,7 +55,7 @@ func getListOfCompanyGroups(_ *cobra.Command, _ []string) error {
 			fmt.Println(cyan.Sprint("Опис:"), group.Description)
 		}
 
-		if i < numberOfGroups {
+		if i+1 < numberOfGroups {
 			fmt.Println()
 		}
 	}

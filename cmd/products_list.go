@@ -47,10 +47,7 @@ func getListOfProducts(_ *cobra.Command, _ []string) error {
 		return fmt.Errorf("не знайдено жодного товару")
 	}
 
-	var i = 0
-
-	for _, product := range products {
-		i++
+	for i, product := range products {
 		fmt.Println(cyan.Sprint("ID:"), yellow.Sprint(product.ID))
 		fmt.Println(cyan.Sprint("Назва:"), product.Name)
 		fmt.Println(cyan.Sprint("Група:"), product.Group.Name, blue.Sprintf("(ID: %d)", product.Group.ID))
@@ -62,7 +59,7 @@ func getListOfProducts(_ *cobra.Command, _ []string) error {
 			fmt.Println(cyan.Sprint("Опис:"), product.Description)
 		}
 
-		if i < numberOfProducts {
+		if i+1 < numberOfProducts {
 			fmt.Println()
 		}
 	}
